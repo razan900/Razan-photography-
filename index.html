@@ -135,10 +135,10 @@
                 <div id="reportResult" class="mt-4 hidden p-4 bg-slate-900 rounded-xl border border-slate-700 text-sm"></div>
             </div>
 
-            <!-- Bookings List Management (قائمة الحجوزات المستقلة مع الأزرار الملونة) -->
+            <!-- Bookings List Management (قائمة الحجوزات مع الحالات الملونة) -->
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 overflow-hidden">
                 <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                    <h3 class="text-xl font-bold text-amber-400">قائمة الحجوزات الشاملة (الحالات والحذف والتعديل)</h3>
+                    <h3 class="text-xl font-bold text-amber-400">قائمة الحجوزات الشاملة (مع أزرار الحالة الملونة، التعديل والحذف)</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-right text-sm text-slate-300">
@@ -163,7 +163,7 @@
 
     </main>
 
-    <!-- Expense Modal (مع خيار العملة دولار أو سوري) -->
+    <!-- Expense Modal -->
     <div id="expenseModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md space-y-4">
             <h3 class="text-lg font-bold text-amber-400">تسجيل مصروف جديد للاستوديو</h3>
@@ -244,11 +244,11 @@
     </div>
 
     <script>
-        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v4')) || [
+        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v5')) || [
             { id: 1, name: 'محمد ورزان', phone: '0912345678', eventType: 'عرس كامل', date: '2026-10-28', total: 500, deposit: 200, currency: 'دولار', status: 'بالانتظار', notes: 'القاعة الكبرى' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v4')) || [
+        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v5')) || [
             { id: 1, desc: 'شراء بطاريات إضاءة إضافية', amount: 75, currency: 'دولار', date: '2026-10-05' }
         ];
 
@@ -267,7 +267,7 @@
                 clientSec.classList.add('hidden');
                 adminSec.classList.remove('hidden');
                 btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow";
-                btnClient.className, btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
+                btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
                 renderAdminData();
             }
         }
@@ -288,7 +288,7 @@
             };
 
             bookings.push(newB);
-            localStorage.setItem('razan_bookings_v4', JSON.stringify(bookings));
+            localStorage.setItem('razan_bookings_v5', JSON.stringify(bookings));
             alert('تم تسجيل الحجز بنجاح لدى Razan Photography!');
             document.getElementById('bookingForm').reset();
             switchTab('admin');
@@ -303,10 +303,13 @@
             bookings.forEach(b => {
                 totalContracts += b.total;
                 
-                // تحديد ألوان الأزرار حسب الحالة (أخضر جاهز، أحمر ملغي، برتقالي بالانتظار)
-                let statusColorClass = "bg-orange-500/20 text-orange-400 border-orange-500/30";
-                if (b.status === 'جاهز') statusColorClass = "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
-                if (b.status === 'ملغي') statusColorClass = "bg-rose-500/20 text-rose-400 border-rose-500/30";
+                // ألوان الحالة المطلوبة: أخضر جاهز، أحمر ملغي، برتقالي بالانتظار
+                let selectStyle = "background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);"; // برتقالي افتراضي
+                if (b.status === 'جاهز') {
+                    selectStyle = "background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);";
+                } else if (b.status === 'ملغي') {
+                    selectStyle = "background-color: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4);";
+                }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-700/50 transition-colors">
@@ -316,15 +319,15 @@
                         <td class="p-3 font-bold text-amber-300">$${b.total}</td>
                         <td class="p-3"><span class="text-emerald-400">${b.deposit} ${b.currency === 'دولار' ? '$' : 'ل.س'}</span></td>
                         <td class="p-3">
-                            <select onchange="updateStatus(${b.id}, this.value)" class="border px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${statusColorClass} focus:outline-none">
-                                <option value="بالانتظار" ${b.status === 'بالانتظار' ? 'selected' : ''}>🟠 بالانتظار</option>
-                                <option value="جاهز" ${b.status === 'جاهز' ? 'selected' : ''}>🟢 جاهز</option>
-                                <option value="ملغي" ${b.status === 'ملغي' ? 'selected' : ''}>🔴 ملغي</option>
+                            <select onchange="updateStatus(${b.id}, this.value)" style="${selectStyle}" class="px-3 py-1.5 rounded-lg text-xs font-bold focus:outline-none cursor-pointer">
+                                <option value="بالانتظار" ${b.status === 'بالانتظار' ? 'selected' : ''} style="background: #1e293b; color: #fbbf24;">🟠 بالانتظار</option>
+                                <option value="جاهز" ${b.status === 'جاهز' ? 'selected' : ''} style="background: #1e293b; color: #34d399;">🟢 جاهز</option>
+                                <option value="ملغي" ${b.status === 'ملغي' ? 'selected' : ''} style="background: #1e293b; color: #fb7185;">🔴 ملغي</option>
                             </select>
                         </td>
                         <td class="p-3 flex gap-2">
-                            <button onclick="openEditModal(${b.id})" class="text-xs bg-amber-600/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded hover:bg-amber-600/30">تعديل</button>
-                            <button onclick="deleteBooking(${b.id})" class="text-xs bg-rose-600/20 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded hover:bg-rose-600/30">حذف</button>
+                            <button onclick="openEditModal(${b.id})" class="text-xs bg-amber-600/20 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded hover:bg-amber-600/30 font-bold">تعديل</button>
+                            <button onclick="deleteBooking(${b.id})" class="text-xs bg-rose-600/20 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded hover:bg-rose-600/30 font-bold">حذف</button>
                         </td>
                     </tr>
                 `;
@@ -339,7 +342,7 @@
             const b = bookings.find(x => x.id === id);
             if (b) {
                 b.status = newStatus;
-                localStorage.setItem('razan_bookings_v4', JSON.stringify(bookings));
+                localStorage.setItem('razan_bookings_v5', JSON.stringify(bookings));
                 renderAdminData();
             }
         }
@@ -347,7 +350,7 @@
         function deleteBooking(id) {
             if (confirm('هل أنت متأكد من حذف هذا الحجز نهائياً؟')) {
                 bookings = bookings.filter(x => x.id !== id);
-                localStorage.setItem('razan_bookings_v4', JSON.stringify(bookings));
+                localStorage.setItem('razan_bookings_v5', JSON.stringify(bookings));
                 renderAdminData();
             }
         }
@@ -381,7 +384,7 @@
                 b.total = parseFloat(document.getElementById('editTotal').value) || 0;
                 b.deposit = parseFloat(document.getElementById('editDeposit').value) || 0;
 
-                localStorage.setItem('razan_bookings_v4', JSON.stringify(bookings));
+                localStorage.setItem('razan_bookings_v5', JSON.stringify(bookings));
                 closeEditModal();
                 renderAdminData();
                 alert('تم تحديث بيانات الحجز بنجاح!');
@@ -397,55 +400,4 @@
             document.getElementById('expenseModal').style.display = 'none';
         }
 
-        function saveExpense() {
-            const desc = document.getElementById('expDesc').value;
-            const amount = parseFloat(document.getElementById('expAmount').value);
-            const currency = document.getElementById('expCurrency').value;
-            const date = document.getElementById('expDate').value;
-
-            if (desc && amount && date) {
-                expenses.push({ id: Date.now(), desc, amount, currency, date });
-                localStorage.setItem('razan_expenses_v4', JSON.stringify(expenses));
-                closeExpenseModal();
-                renderAdminData();
-                alert('تم حفظ المصروف بنجاح!');
-            } else {
-                alert('الرجاء تعبئة كافة حقول المصروف.');
-            }
-        }
-
-        function generateReport() {
-            const from = document.getElementById('filterFrom').value;
-            const to = document.getElementById('filterTo').value;
-            const resDiv = document.getElementById('reportResult');
-
-            if (!from || !to) {
-                alert('الرجاء تحديد تاريخ البداية وتاريخ النهاية للكشف.');
-                return;
-            }
-
-            const filteredBookings = bookings.filter(b => b.date >= from && b.date <= to);
-            const filteredExpenses = expenses.filter(e => e.date >= from && e.date <= to);
-
-            let contractsTotal = filteredBookings.reduce((s, b) => s + b.total, 0);
-            
-            // تجميع المصروفات حسب العملة
-            let expUSD = filteredExpenses.filter(e => e.currency === 'دولار').reduce((s, e) => s + e.amount, 0);
-            let expSYP = filteredExpenses.filter(e => e.currency === 'ليرة سورية').reduce((s, e) => s + e.amount, 0);
-
-            resDiv.classList.remove('hidden');
-            resDiv.innerHTML = `
-                <h4 class="font-bold text-amber-400 mb-2">تقرير الكشف المالي من ${from} إلى ${to}:</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-300">
-                    <div>إجمالي العقود بالحجوزات: <span class="text-amber-300 font-bold">$${contractsTotal}</span></div>
-                    <div>المصروفات بالدولار: <span class="text-rose-400 font-bold">$${expUSD}</span></div>
-                    <div>المصروفات بالليرة السورية: <span class="text-rose-400 font-bold">${expSYP} ل.س</span></div>
-                </div>
-                <div class="mt-2 text-xs text-slate-400">عدد الحجوزات في الفترة: ${filteredBookings.length} حجز | عدد المصروفات: ${filteredExpenses.length} مصروف.</div>
-            `;
-        }
-
-        renderAdminData();
-    </script>
-</body>
-</html>
+        function saveExpense
