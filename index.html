@@ -107,8 +107,8 @@
                     <h3 id="stat-contracts" class="text-2xl font-extrabold text-amber-400 mt-1">$0</h3>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl">
-                    <p class="text-slate-400 text-sm">عدد المصاريف المسجلة</p>
-                    <h3 id="stat-exp-count" class="text-2xl font-extrabold text-blue-400 mt-1">0</h3>
+                    <p class="text-slate-400 text-sm">عربون بالليرة السورية</p>
+                    <h3 id="stat-dep-syp" class="text-2xl font-extrabold text-emerald-400 mt-1">0 ل.س</h3>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl">
                     <p class="text-slate-400 text-sm">إجراء سريع</p>
@@ -116,10 +116,10 @@
                 </div>
             </div>
 
-            <!-- Financial Filter & Reports -->
-            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
-                <h3 class="text-lg font-bold text-amber-400 mb-4">كشوفات مالية مخصصة (من تاريخ - إلى تاريخ)</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+            <!-- Financial Reports & Filters -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-4">
+                <h3 class="text-lg font-bold text-amber-400">الكشوفات والتقارير الاحترافية</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">من تاريخ</label>
                         <input type="date" id="filterFrom" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
@@ -128,17 +128,22 @@
                         <label class="block text-xs text-slate-400 mb-1">إلى تاريخ</label>
                         <input type="date" id="filterTo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
                     </div>
-                    <div class="flex gap-2 sm:col-span-2">
-                        <button onclick="generateReport()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-lg text-sm transition-all">عرض الكشف المالي والمصاريف</button>
-                    </div>
                 </div>
-                <div id="reportResult" class="mt-4 hidden p-4 bg-slate-900 rounded-xl border border-slate-700 text-sm"></div>
+                <div class="flex flex-wrap gap-2 pt-2">
+                    <button onclick="showReport('all')" class="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg text-xs transition-all">📊 جدول الحجوزات الكامل</button>
+                    <button onclick="showReport('pending')" class="bg-orange-600/20 text-orange-400 border border-orange-500/30 font-medium px-4 py-2 rounded-lg text-xs transition-all">🟠 قيد الانتظار</button>
+                    <button onclick="showReport('cancelled')" class="bg-rose-600/20 text-rose-400 border border-rose-500/30 font-medium px-4 py-2 rounded-lg text-xs transition-all">🔴 الأعمال غير المنجزة (الملغاة)</button>
+                    <button onclick="showReport('expenses')" class="bg-blue-600/20 text-blue-400 border border-blue-500/30 font-medium px-4 py-2 rounded-lg text-xs transition-all">💸 كشف المصاريف</button>
+                </div>
+                <div id="reportResult" class="mt-4 p-4 bg-slate-900 rounded-xl border border-slate-700 text-sm space-y-3">
+                    <p class="text-slate-400 text-center">اختر نوع الكشف من الأزرار أعلاه لعرض النتائج المفصلة.</p>
+                </div>
             </div>
 
             <!-- Bookings Cards Management -->
             <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-700 pb-4">
-                    <h3 class="text-xl font-bold text-amber-400">قائمة الحجوزات (بطاقات واضحة للموبايل)</h3>
+                    <h3 class="text-xl font-bold text-amber-400">إدارة الحجوزات العامة</h3>
                 </div>
                 <div id="adminBookingsContainer" class="space-y-4">
                     <!-- Populated dynamically -->
@@ -229,11 +234,11 @@
     </div>
 
     <script>
-        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v7')) || [
+        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v8')) || [
             { id: 1, name: 'محمد ورزان', phone: '0912345678', eventType: 'عرس كامل', date: '2026-10-28', total: 500, deposit: 200, currency: 'دولار', status: 'بالانتظار', notes: 'القاعة الكبرى' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v7')) || [
+        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v8')) || [
             { id: 1, desc: 'شراء بطاريات إضاءة إضافية', amount: 75, currency: 'دولار', date: '2026-10-05' }
         ];
 
@@ -273,7 +278,7 @@
             };
 
             bookings.push(newB);
-            localStorage.setItem('razan_bookings_v7', JSON.stringify(bookings));
+            localStorage.setItem('razan_bookings_v8', JSON.stringify(bookings));
             alert('تم تسجيل الحجز بنجاح لدى Razan Photography!');
             document.getElementById('bookingForm').reset();
             switchTab('admin');
@@ -284,9 +289,13 @@
             container.innerHTML = '';
 
             let totalContracts = 0;
+            let totalDepSYP = 0;
 
             bookings.forEach(b => {
                 totalContracts += b.total;
+                if (b.currency === 'ليرة سورية') {
+                    totalDepSYP += b.deposit;
+                }
                 
                 let selectStyle = "background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);"; 
                 if (b.status === 'جاهز') {
@@ -297,4 +306,171 @@
 
                 container.innerHTML += `
                     <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col gap-3">
-                        <div class
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-white text-base">${b.name}</h4>
+                                <p class="text-xs text-amber-400 mt-0.5">🏷️ ${b.eventType}</p>
+                            </div>
+                            <span class="text-xs text-slate-400">📅 ${b.date}</span>
+                        </div>
+                        <div class="text-xs text-slate-300 space-y-1 bg-slate-800/60 p-2.5 rounded-lg border border-slate-800">
+                            <p>📞 الهاتف: <span class="text-white">${b.phone}</span></p>
+                            <p>💰 المبلغ المتفق عليه: <span class="text-amber-300 font-bold">$${b.total}</span> | العربون: <span class="text-emerald-400 font-bold">${b.deposit} ${b.currency === 'دولار' ? '$' : 'ل.س'}</span></p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                            <select onchange="updateStatus(${b.id}, this.value)" style="${selectStyle}" class="px-3 py-1.5 rounded-lg text-xs font-bold focus:outline-none cursor-pointer">
+                                <option value="بالانتظار" ${b.status === 'بالانتظار' ? 'selected' : ''} style="background: #1e293b; color: #fbbf24;">🟠 بالانتظار</option>
+                                <option value="جاهز" ${b.status === 'جاهز' ? 'selected' : ''} style="background: #1e293b; color: #34d399;">🟢 جاهز</option>
+                                <option value="ملغي" ${b.status === 'ملغي' ? 'selected' : ''} style="background: #1e293b; color: #fb7185;">🔴 ملغي</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <button onclick="openEditModal(${b.id})" class="text-xs bg-amber-600/20 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg hover:bg-amber-600/30 font-bold">تعديل</button>
+                                <button onclick="deleteBooking(${b.id})" class="text-xs bg-rose-600/20 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-lg hover:bg-rose-600/30 font-bold">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('stat-total').innerText = bookings.length;
+            document.getElementById('stat-contracts').innerText = '$' + totalContracts;
+            document.getElementById('stat-dep-syp').innerText = totalDepSYP.toLocaleString() + ' ل.س';
+            document.getElementById('stat-exp-count').innerText = expenses.length;
+        }
+
+        function updateStatus(id, newStatus) {
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                b.status = newStatus;
+                localStorage.setItem('razan_bookings_v8', JSON.stringify(bookings));
+                renderAdminData();
+            }
+        }
+
+        function deleteBooking(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الحجز نهائياً؟')) {
+                bookings = bookings.filter(x => x.id !== id);
+                localStorage.setItem('razan_bookings_v8', JSON.stringify(bookings));
+                renderAdminData();
+            }
+        }
+
+        function openEditModal(id) {
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                document.getElementById('editId').value = b.id;
+                document.getElementById('editName').value = b.name;
+                document.getElementById('editPhone').value = b.phone;
+                document.getElementById('editEventType').value = b.eventType;
+                document.getElementById('editDate').value = b.date;
+                document.getElementById('editTotal').value = b.total;
+                document.getElementById('editDeposit').value = b.deposit;
+                document.getElementById('editModal').style.display = 'flex';
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveEditBooking() {
+            const id = parseInt(document.getElementById('editId').value);
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                b.name = document.getElementById('editName').value;
+                b.phone = document.getElementById('editPhone').value;
+                b.eventType = document.getElementById('editEventType').value;
+                b.date = document.getElementById('editDate').value;
+                b.total = parseFloat(document.getElementById('editTotal').value) || 0;
+                b.deposit = parseFloat(document.getElementById('editDeposit').value) || 0;
+
+                localStorage.setItem('razan_bookings_v8', JSON.stringify(bookings));
+                closeEditModal();
+                renderAdminData();
+                alert('تم تحديث بيانات الحجز بنجاح!');
+            }
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expenseModal').style.display = 'flex';
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').style.display = 'none';
+        }
+
+        function saveExpense() {
+            const desc = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const currency = document.getElementById('expCurrency').value;
+            const date = document.getElementById('expDate').value;
+
+            if (desc && amount && date) {
+                expenses.push({ id: Date.now(), desc, amount, currency, date });
+                localStorage.setItem('razan_expenses_v8', JSON.stringify(expenses));
+                closeExpenseModal();
+                renderAdminData();
+                alert('تم حفظ المصروف بنجاح!');
+            } else {
+                alert('الرجاء تعبئة كافة حقول المصروف.');
+            }
+        }
+
+        function showReport(type) {
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+            const resDiv = document.getElementById('reportResult');
+
+            let filteredB = bookings;
+            let filteredE = expenses;
+
+            if (from && to) {
+                filteredB = bookings.filter(b => b.date >= from && b.date <= to);
+                filteredE = expenses.filter(e => e.date >= from && e.date <= to);
+            }
+
+            resDiv.classList.remove('hidden');
+
+            if (type === 'all') {
+                let html = `<h4 class="font-bold text-amber-400 mb-2">📋 جدول الحجوزات الكامل:</h4><div class="space-y-2">`;
+                filteredB.forEach(b => {
+                    html += `<div class="bg-slate-800 p-2 rounded text-xs flex justify-between"><span><b>${b.name}</b> (${b.eventType}) - ${b.date}</span><span class="text-amber-300">$${b.total} (عربون: ${b.deposit} ${b.currency === 'دولار' ? '$' : 'ل.س'})</span></div>`;
+                });
+                html += `</div>`;
+                resDiv.innerHTML = html;
+            } else if (type === 'pending') {
+                let pending = filteredB.filter(b => b.status === 'بالانتظار');
+                let html = `<h4 class="font-bold text-orange-400 mb-2">🟠 الأعمال قيد الانتظار (${pending.length}):</h4><div class="space-y-2">`;
+                pending.forEach(b => {
+                    html += `<div class="bg-slate-800 p-2 rounded text-xs flex justify-between"><span><b>${b.name}</b> (${b.eventType})</span><span class="text-slate-300">${b.date}</span></div>`;
+                });
+                html += `</div>`;
+                resDiv.innerHTML = html;
+            } else if (type === 'cancelled') {
+                let cancelled = filteredB.filter(b => b.status === 'ملغي');
+                let html = `<h4 class="font-bold text-rose-400 mb-2">🔴 الأعمال غير المنجزة / الملغاة (${cancelled.length}):</h4><div class="space-y-2">`;
+                cancelled.forEach(b => {
+                    html += `<div class="bg-slate-800 p-2 rounded text-xs flex justify-between"><span><b>${b.name}</b> (${b.eventType})</span><span class="text-slate-300">${b.date}</span></div>`;
+                });
+                html += `</div>`;
+                resDiv.innerHTML = html;
+            } else if (type === 'expenses') {
+                let expUSD = filteredE.filter(e => e.currency === 'دولار').reduce((s, e) => s + e.amount, 0);
+                let expSYP = filteredE.filter(e => e.currency === 'ليرة سورية').reduce((s, e) => s + e.amount, 0);
+                let html = `<h4 class="font-bold text-blue-400 mb-2">💸 كشف المصاريف المفصل:</h4>
+                            <p class="text-slate-300">إجمالي المصروفات بالدولار: <b class="text-rose-400">$${expUSD}</b></p>
+                            <p class="text-slate-300">إجمالي المصروفات بالليرة السورية: <b class="text-rose-400">${expSYP.toLocaleString()} ل.س</b></p>
+                            <div class="mt-2 space-y-1">`;
+                filteredE.forEach(e => {
+                    html += `<div class="bg-slate-800 p-1.5 rounded text-xs flex justify-between"><span>${e.desc} (${e.date})</span><span class="text-rose-300">${e.amount} ${e.currency === 'دولار' ? '$' : 'ل.س'}</span></div>`;
+                });
+                html += `</div>`;
+                resDiv.innerHTML = html;
+            }
+        }
+
+        renderAdminData();
+    </script>
+</body>
+</html>
