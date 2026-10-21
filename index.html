@@ -267,11 +267,11 @@
     </div>
 
     <script>
-        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v9')) || [
+        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v10')) || [
             { id: 1, name: 'محمد ورزان', phone: '0912345678', eventType: 'عرس كامل', date: '2026-10-28', total: 500, deposit: 200, currency: 'دولار', status: 'بالانتظار', notes: 'القاعة الكبرى' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v9')) || [
+        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v10')) || [
             { id: 1, desc: 'شراء بطاريات إضاءة إضافية', amount: 75, currency: 'دولار', date: '2026-10-05' }
         ];
 
@@ -289,62 +289,4 @@
             } else {
                 clientSec.classList.add('hidden');
                 adminSec.classList.remove('hidden');
-                btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow";
-                btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
-                renderAdminData();
-            }
-        }
-
-        function handleNewBooking(e) {
-            e.preventDefault();
-            const newB = {
-                id: Date.now(),
-                name: document.getElementById('clientName').value,
-                phone: document.getElementById('clientPhone').value,
-                eventType: document.getElementById('eventType').value,
-                date: document.getElementById('eventDate').value,
-                total: parseFloat(document.getElementById('totalAmount').value) || 0,
-                deposit: parseFloat(document.getElementById('depositAmount').value) || 0,
-                currency: document.getElementById('depositCurrency').value,
-                status: 'بالانتظار',
-                notes: document.getElementById('eventNotes').value
-            };
-
-            bookings.push(newB);
-            localStorage.setItem('razan_bookings_v9', JSON.stringify(bookings));
-            alert('تم تسجيل الحجز بنجاح لدى Razan Photography!');
-            document.getElementById('bookingForm').reset();
-            switchTab('admin');
-        }
-
-        function renderAdminData() {
-            const container = document.getElementById('adminBookingsContainer');
-            container.innerHTML = '';
-
-            let totalContracts = 0;
-            let totalDepSYP = 0;
-
-            bookings.forEach(b => {
-                totalContracts += b.total;
-                if (b.currency === 'ليرة سورية') {
-                    totalDepSYP += b.deposit;
-                }
-                
-                let selectStyle = "background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);"; 
-                if (b.status === 'جاهز') {
-                    selectStyle = "background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);";
-                } else if (b.status === 'ملغي') {
-                    selectStyle = "background-color: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4);";
-                }
-
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col gap-3">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h4 class="font-bold text-white text-base">${b.name}</h4>
-                                <p class="text-xs text-amber-400 mt-0.5">🏷️ ${b.eventType}</p>
-                            </div>
-                            <span class="text-xs text-slate-400">📅 ${b.date}</span>
-                        </div>
-                        <div class="text-xs text-slate-300 space-y-1 bg-slate-800/60 p-2.5 rounded-lg border border-slate-800">
-                            <p>📞 الهاتف: <span class="text-white">${b.phone}</span></p>
+                btnAdmin.className = "px-4
