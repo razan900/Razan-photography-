@@ -267,11 +267,11 @@
     </div>
 
     <script>
-        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v10')) || [
+        let bookings = JSON.parse(localStorage.getItem('razan_bookings_v11')) || [
             { id: 1, name: 'محمد ورزان', phone: '0912345678', eventType: 'عرس كامل', date: '2026-10-28', total: 500, deposit: 200, currency: 'دولار', status: 'بالانتظار', notes: 'القاعة الكبرى' }
         ];
 
-        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v10')) || [
+        let expenses = JSON.parse(localStorage.getItem('razan_expenses_v11')) || [
             { id: 1, desc: 'شراء بطاريات إضاءة إضافية', amount: 75, currency: 'دولار', date: '2026-10-05' }
         ];
 
@@ -289,4 +289,188 @@
             } else {
                 clientSec.classList.add('hidden');
                 adminSec.classList.remove('hidden');
-                btnAdmin.className = "px-4
+                btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow";
+                btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
+                renderAdminData();
+            }
+        }
+
+        function handleNewBooking(e) {
+            e.preventDefault();
+            const newB = {
+                id: Date.now(),
+                name: document.getElementById('clientName').value,
+                phone: document.getElementById('clientPhone').value,
+                eventType: document.getElementById('eventType').value,
+                date: document.getElementById('eventDate').value,
+                total: parseFloat(document.getElementById('totalAmount').value) || 0,
+                deposit: parseFloat(document.getElementById('depositAmount').value) || 0,
+                currency: document.getElementById('depositCurrency').value,
+                status: 'بالانتظار',
+                notes: document.getElementById('eventNotes').value
+            };
+
+            bookings.push(newB);
+            localStorage.setItem('razan_bookings_v11', JSON.stringify(bookings));
+            alert('تم تسجيل الحجز بنجاح لدى Razan Photography!');
+            document.getElementById('bookingForm').reset();
+            switchTab('admin');
+        }
+
+        function renderAdminData() {
+            const container = document.getElementById('adminBookingsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            let totalContracts = 0;
+            let totalDepSYP = 0;
+
+            bookings.forEach(b => {
+                totalContracts += b.total;
+                if (b.currency === 'ليرة سورية') {
+                    totalDepSYP += b.deposit;
+                }
+                
+                let selectStyle = "background-color: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);"; 
+                if (b.status === 'جاهز') {
+                    selectStyle = "background-color: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);";
+                } else if (b.status === 'ملغي') {
+                    selectStyle = "background-color: rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.4);";
+                }
+
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-700 rounded-xl p-4 flex flex-col gap-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-white text-base">${b.name}</h4>
+                                <p class="text-xs text-amber-400 mt-0.5">🏷️ ${b.eventType}</p>
+                            </div>
+                            <span class="text-xs text-slate-400">📅 ${b.date}</span>
+                        </div>
+                        <div class="text-xs text-slate-300 space-y-1 bg-slate-800/60 p-2.5 rounded-lg border border-slate-800">
+                            <p>📞 الهاتف: <span class="text-white">${b.phone}</span></p>
+                            <p>💰 المبلغ المتفق عليه: <span class="text-amber-300 font-bold">$${b.total}</span> | العربون: <span class="text-emerald-400 font-bold">${b.deposit} ${b.currency === 'دولار' ? '$' : 'ل.س'}</span></p>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                            <select onchange="updateStatus(${b.id}, this.value)" style="${selectStyle}" class="px-3 py-1.5 rounded-lg text-xs font-bold focus:outline-none cursor-pointer">
+                                <option value="بالانتظار" ${b.status === 'بالانتظار' ? 'selected' : ''} style="background: #1e293b; color: #fbbf24;">🟠 بالانتظار</option>
+                                <option value="جاهز" ${b.status === 'جاهز' ? 'selected' : ''} style="background: #1e293b; color: #34d399;">🟢 جاهز</option>
+                                <option value="ملغي" ${b.status === 'ملغي' ? 'selected' : ''} style="background: #1e293b; color: #fb7185;">🔴 ملغي</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <button onclick="openEditModal(${b.id})" class="text-xs bg-amber-600/20 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-lg hover:bg-amber-600/30 font-bold">تعديل</button>
+                                <button onclick="deleteBooking(${b.id})" class="text-xs bg-rose-600/20 text-rose-400 border border-rose-500/30 px-3 py-1.5 rounded-lg hover:bg-rose-600/30 font-bold">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const statTotal = document.getElementById('stat-total');
+            const statContracts = document.getElementById('stat-contracts');
+            const statDepSyp = document.getElementById('stat-dep-syp');
+            const statExpCount = document.getElementById('stat-exp-count');
+
+            if (statTotal) statTotal.innerText = bookings.length;
+            if (statContracts) statContracts.innerText = '$' + totalContracts;
+            if (statDepSyp) statDepSyp.innerText = totalDepSYP.toLocaleString() + ' ل.س';
+            if (statExpCount) statExpCount.innerText = expenses.length;
+        }
+
+        function updateStatus(id, newStatus) {
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                b.status = newStatus;
+                localStorage.setItem('razan_bookings_v11', JSON.stringify(bookings));
+                renderAdminData();
+            }
+        }
+
+        function deleteBooking(id) {
+            if (confirm('هل أنت متأكد من حذف هذا الحجز نهائياً؟')) {
+                bookings = bookings.filter(x => x.id !== id);
+                localStorage.setItem('razan_bookings_v11', JSON.stringify(bookings));
+                renderAdminData();
+            }
+        }
+
+        function openEditModal(id) {
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                document.getElementById('editId').value = b.id;
+                document.getElementById('editName').value = b.name;
+                document.getElementById('editPhone').value = b.phone;
+                document.getElementById('editEventType').value = b.eventType;
+                document.getElementById('editDate').value = b.date;
+                document.getElementById('editTotal').value = b.total;
+                document.getElementById('editDeposit').value = b.deposit;
+                document.getElementById('editModal').style.display = 'flex';
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveEditBooking() {
+            const id = parseInt(document.getElementById('editId').value);
+            const b = bookings.find(x => x.id === id);
+            if (b) {
+                b.name = document.getElementById('editName').value;
+                b.phone = document.getElementById('editPhone').value;
+                b.eventType = document.getElementById('editEventType').value;
+                b.date = document.getElementById('editDate').value;
+                b.total = parseFloat(document.getElementById('editTotal').value) || 0;
+                b.deposit = parseFloat(document.getElementById('editDeposit').value) || 0;
+
+                localStorage.setItem('razan_bookings_v11', JSON.stringify(bookings));
+                closeEditModal();
+                renderAdminData();
+                alert('تم تحديث بيانات الحجز بنجاح!');
+            }
+        }
+
+        function openExpenseModal() {
+            document.getElementById('expenseModal').style.display = 'flex';
+            document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').style.display = 'none';
+        }
+
+        function saveExpense() {
+            const desc = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const currency = document.getElementById('expCurrency').value;
+            const date = document.getElementById('expDate').value;
+
+            if (desc && amount && date) {
+                expenses.push({ id: Date.now(), desc, amount, currency, date });
+                localStorage.setItem('razan_expenses_v11', JSON.stringify(expenses));
+                closeExpenseModal();
+                renderAdminData();
+                alert('تم حفظ المصروف بنجاح!');
+            } else {
+                alert('الرجاء تعبئة كافة حقول المصروف.');
+            }
+        }
+
+        function deleteExpense(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                expenses = expenses.filter(e => e.id !== id);
+                localStorage.setItem('razan_expenses_v11', JSON.stringify(expenses));
+                renderAdminData();
+                showReport('expenses');
+            }
+        }
+
+        function openEditExpenseModal(id) {
+            const e = expenses.find(x => x.id === id);
+            if (e) {
+                document.getElementById('editExpId').value = e.id;
+                document.getElementById('editExpDesc').value = e.desc;
+                document.getElementById('editExpAmount').value = e.amount;
+                document.getElementById('editExpCurrency').value = e.currency;
+                document.getElementById('editExpDate').value = e.date;
+                document.getElementById
