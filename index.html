@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Razan Photography - نظام الحجوزات والإدارة</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+body { font-family: 'Tajawal', sans-serif; }
+</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+<!-- Header / Navbar -->
+<header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-amber-500 text-slate-950 font-black text-xl p-2 rounded-xl shadow-lg">RP</div>
+<div>
+<h1 class="text-xl font-bold text-amber-400 tracking-wide">Razan Photography</h1>
+<p class="text-xs text-slate-400">نظام إدارة الحجوزات والمصاريف الاحترافي</p>
+</div>
+</div>
+<div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700">
+<button onclick="switchTab('client')" id="btn-client" class="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow">واجهة الزباين</button>
+<button onclick="switchTab('admin')" id="btn-admin" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white">لوحة تحكم الإدارة</button>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+<!-- ================= CLIENT SECTION ================= -->
+<section id="section-client" class="space-y-8">
+<div class="bg-gradient-to-r from-amber-600/20 via-slate-800 to-slate-800 border border-amber-500/30 rounded-2xl p-6 sm:p-10 text-center">
+<h2 class="text-3xl font-extrabold text-white mb-3">وثق أجمل لحظات حياتك مع <span class="text-amber-400">Razan Photography</span></h2>
+<p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base">احجز موعدك الآن بكل سهولة، اختر الباقة ونوع المناسبة، وحدد التاريخ المناسب لتثبيت الحجز.</p>
+</div>
+
+<!-- Booking Form Card -->
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl">
+<h3 class="text-xl font-bold text-amber-400 mb-6 border-b border-slate-700 pb-3">استمارة حجز موعد جديد</h3>
+<form id="bookingForm" onsubmit="handleNewBooking(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">اسم العميل / العريس والعروس</label>
+<input type="text" id="clientName" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500" placeholder="مثال: أحمد وسارة">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">رقم الهاتف (واتساب)</label>
+<input type="tel" id="clientPhone" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500" placeholder="09xxxxxxxx">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">نوع المناسبة / الحجز</label>
+<select id="eventType" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+<option value="عرس كامل">عرس كامل</option>
+<option value="خطوبة">خطوبة</option>
+<option value="عرس بدون فيديو">عرس بدون فيديو</option>
+<option value="تصوير خارجي">تصوير خارجي (Location)</option>
+<option value="تخرج">حفل تخرج</option>
+<option value="حفلة عيد ميلاد">حفلة عيد ميلاد</option>
+<option value="زفة خارجية">زفة خارجية</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">تاريخ الحجز والمناسبة</label>
+<input type="date" id="eventDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">اختر الباقة المناسبة</label>
+<select id="eventPackage" onchange="updatePackageDetails()" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500">
+<option value="الذهبية|300|100">الباقة الذهبية (شامل ألبوم وكليب) - 100)</option>
+<option value="الماسية|500|200">الباقة الماسية المتكاملة - 200)</option>
+<option value="الكلاسيكية|200|50">الباقة الكلاسيكية (صور وفيديو أساسي) - 50)</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-300 mb-2">ملاحظات إضافية</label>
+<input type="text" id="eventNotes" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500" placeholder="مكان القاعة أو تفاصيل خاصة...">
+</div>
+<div class="sm:col-span-2 flex justify-end gap-4 mt-4">
+<button type="submit" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-bold px-8 py-3.5 rounded-xl shadow-lg transition-all">تثبيت الحجز ودفع العربون</button>
+</div>
+</form>
+</div>
+</section>
+
+<!-- ================= ADMIN SECTION ================= -->
+<section id="section-admin" class="hidden space-y-8">
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+<div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl">
+<p class="text-slate-400 text-sm">إجمالي الحجوزات</p>
+<h3 id="stat-total" class="text-2xl font-extrabold text-white mt-1">0</h3>
+</div>
+<div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl">
+<p class="text-slate-400 text-sm">المقبوضات (العربون/المدفوع)</p>
+<h3 id="stat-paid" class="text-2xl font-extrabold text-amber-400 mt-1">0</h3>
+</div>
+<div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl">
+<p class="text-slate-400 text-sm">إجمالي المصروفات</p>
+<h3 id="stat-expenses" class="text-2xl font-extrabold text-blue-400 mt-1">$`0</h3>
+</div>
+</div>
+
+<!-- Financial Filter & Reports -->
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+<h3 class="text-lg font-bold text-amber-400 mb-4">كشوفات مالية مخصصة (من تاريخ - إلى تاريخ)</h3>
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+<div>
+<label class="block text-xs text-slate-400 mb-1">من تاريخ</label>
+<input type="date" id="filterFrom" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+</div>
+<div>
+<label class="block text-xs text-slate-400 mb-1">إلى تاريخ</label>
+<input type="date" id="filterTo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white">
+</div>
+<div class="flex gap-2">
+<button onclick="generateReport()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2 rounded-lg text-sm transition-all">عرض الكشف</button>
+<button onclick="openExpenseModal()" class="bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-4 rounded-lg text-sm transition-all">+ إضافة مصروف</button>
+</div>
+</div>
+<div id="reportResult" class="mt-4 hidden p-4 bg-slate-900 rounded-xl border border-slate-700 text-sm"></div>
+</div>
+
+<!-- Bookings Table Management -->
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 overflow-hidden">
+<h3 class="text-xl font-bold text-amber-400 mb-4">إدارة حجوزات وحالات استوديو رزان فوتوغرافي</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-right text-sm text-slate-300">
+<thead class="bg-slate-900 text-slate-400 uppercase text-xs">
+<tr>
+<th class="p-3">العميل</th>
+<th class="p-3">نوع المناسبة</th>
+<th class="p-3">التاريخ</th>
+<th class="p-3">الباقة والتكلفة</th>
+<th class="p-3">المدفوع / الباقي</th>
+<th class="p-3">حالة العمل</th>
+<th class="p-3">إجراءات التحكم</th>
+</tr>
+</thead>
+<tbody id="adminBookingsTable" class="divide-y divide-slate-700">
+<!-- Populated dynamically -->
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+</main>
+
+<!-- Expense Modal -->
+<div id="expenseModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+<div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 w-full max-w-md space-y-4">
+<h3 class="text-lg font-bold text-amber-400">تسجيل مصروف جديد للاستوديو</h3>
+<div>
+<label class="block text-xs text-slate-400 mb-1">بيان المصروف</label>
+<input type="text" id="expDesc" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm" placeholder="مثال: صيانة إضاءة، أجار ستوديو...">
+</div>
+<div>
+<label class="block text-xs text-slate-400 mb-1">المبلغ (`$)</label>
+<input type="number" id="expAmount" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm" placeholder="50">
+</div>
+<div>
+<label class="block text-xs text-slate-400 mb-1">التاريخ</label>
+<input type="date" id="expDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white text-sm">
+</div>
+<div class="flex justify-end gap-2 pt-2">
+<button onclick="closeExpenseModal()" class="px-4 py-2 bg-slate-700 rounded-lg text-sm">إلغاء</button>
+<button onclick="saveExpense()" class="px-4 py-2 bg-amber-500 text-slate-950 font-bold rounded-lg text-sm">حفظ المصروف</button>
+</div>
+</div>
+</div>
+
+<script>
+let bookings = JSON.parse(localStorage.getItem('razan_bookings')) || [
+{ id: 1, name: 'محمد ورزان', phone: '0912345678', eventType: 'عرس كامل', date: '2026-10-28', packageName: 'الماسية', total: 500, paid: 200, status: 'جديد', notes: 'القاعة الكبرى' },
+{ id: 2, name: 'سيمر ونور', phone: '0987654321', eventType: 'خطوبة', date: '2026-10-15', packageName: 'الذهبية', total: 300, paid: 300, status: 'قيد التجهيز', notes: 'تصوير خارجي مع استوديو' }
+ ];
+
+let expenses = JSON.parse(localStorage.getItem('razan_expenses')) || [
+{ id: 1, desc: 'شراء بطاريات إضاءة إضافية', amount: 75, date: '2026-10-05' }
+ ];
+
+function switchTab(tab) {
+const clientSec = document.getElementById('section-client');
+const adminSec = document.getElementById('section-admin');
+const btnClient = document.getElementById('btn-client');
+const btnAdmin = document.getElementById('btn-admin');
+
+if (tab === 'client') {
+clientSec.classList.remove('hidden');
+adminSec.classList.add('hidden');
+btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow";
+btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
+} else {
+clientSec.classList.add('hidden');
+adminSec.classList.remove('hidden');
+btnAdmin.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all bg-amber-500 text-slate-950 shadow";
+btnClient.className = "px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white";
+renderAdminData();
+}
+}
+
+function handleNewBooking(e) {
+e.preventDefault();
+const pkgInfo = document.getElementById('eventPackage').value.split('|');
+const newB = {
+id: Date.now(),
+name: document.getElementById('clientName').value,
+phone: document.getElementById('clientPhone').value,
+eventType: document.getElementById('eventType').value,
+date: document.getElementById('eventDate').value,
+packageName: pkgInfo[0],
+total: parseInt(pkgInfo[1]),
+paid: parseInt(pkgInfo[2]),
+status: 'جديد',
+notes: document.getElementById('eventNotes').value
+};
+
+bookings.push(newB);
+localStorage.setItem('razan_bookings', JSON.stringify(bookings));
+alert('تم تسجيل الحجز بنجاح لدى Razan Photography وتم تثبيت العربون!');
+document.getElementById('bookingForm').reset();
+switchTab('admin');
+}
+
+function renderAdminData() {
+const tbody = document.getElementById('adminBookingsTable');
+tbody.innerHTML = '';
+
+let totalPaid = 0;
+let totalRemaining = 0;
+
+bookings.forEach(b => {
+const remaining = b.total - b.paid;
+totalPaid += b.paid;
+totalRemaining += Math.max(0, remaining);
+
+tbody.innerHTML += &lt;tr class="hover:bg-slate-700/50 transition-colors"&gt; &lt;td class="p-3 font-medium text-white"&gt;${b.name}<br><span class="text-xs text-slate-400">${b.phone}&lt;/span&gt;&lt;/td&gt; &lt;td class="p-3"&gt;&lt;span class="bg-slate-900 border border-slate-700 px-2 py-1 rounded text-xs text-amber-400"&gt;${b.eventType}</span></td>
+<td class="p-3">${b.date}&lt;/td&gt; &lt;td class="p-3"&gt;${b.packageName} (${b.total})&lt;/td&gt; &lt;td class="p-3"&gt;&lt;span class="text-emerald-400"&gt;مدفوع: ${b.paid}</span><br><span class="text-rose-400">باقي: ${remaining}&lt;/span&gt;&lt;/td&gt; &lt;td class="p-3"&gt; &lt;select onchange="updateStatus(${b.id}, this.value)" class="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+<option value="جديد" ${b.status === 'جديد' ? 'selected' : ''}&gt;جديد&lt;/option&gt; &lt;option value="تم التصوير" ${b.status === 'تم التصوير' ? 'selected' : ''}>تم التصوير</option>
+<option value="قيد التجهيز" ${b.status === 'قيد التجهيز' ? 'selected' : ''}&gt;قيد التجهيز&lt;/option&gt; &lt;option value="جاهز للتسليم" ${b.status === 'جاهز للتسليم' ? 'selected' : ''}>جاهز للتسليم</option>
+<option value="ملغي" ${b.status === 'ملغي' ? 'selected' : ''}&gt;التصوير ملغي&lt;/option&gt; &lt;/select&gt; &lt;/td&gt; &lt;td class="p-3"&gt; &lt;button onclick="addPayment(${b.id})" class="text-xs bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded hover:bg-emerald-600/30 mr-1">دفعة جديدة</button>
+<button onclick="deleteBooking(${b.id})" class="text-xs bg-rose-600/20 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded hover:bg-rose-600/30"&gt;حذف&lt;/button&gt; &lt;/td&gt; &lt;/tr&gt;;
+});
+
+let totalExp = expenses.reduce((sum, item) => sum + item.amount, 0);
+
+document.getElementById('stat-total').innerText = bookings.length;
+document.getElementById('stat-paid').innerText = '' + totalRemaining;
+document.getElementById('stat-expenses').innerText = '$`' + totalExp;
+}
+
+function updateStatus(id, newStatus) {
+const b = bookings.find(x => x.id === id);
+if (b) {
+b.status = newStatus;
+localStorage.setItem('razan_bookings', JSON.stringify(bookings));
+renderAdminData();
+}
+}
+
+function addPayment(id) {
+const b = bookings.find(x => x.id === id);
+if (b) {
+const amount = prompt(أدخل مبلغ الدفعة الجديدة للعميل${b.name}:`, '50');
+if (amount && !isNaN(amount)) {
+b.paid += parseInt(amount);
+if (b.paid > b.total) b.paid = b.total;
+localStorage.setItem('razan_bookings', JSON.stringify(bookings));
+renderAdminData();
+}
+}
+}
+
+function deleteBooking(id) {
+if (confirm('هل أنت متأكد من حذف هذا الحجز نهائياً؟')) {
+bookings = bookings.filter(x => x.id !== id);
+localStorage.setItem('razan_bookings', JSON.stringify(bookings));
+renderAdminData();
+}
+}
+
+function openExpenseModal() {
+document.getElementById('expenseModal').style.display = 'flex';
+document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+}
+
+function closeExpenseModal() {
+document.getElementById('expenseModal').style.display = 'none';
+}
+
+function saveExpense() {
+const desc = document.getElementById('expDesc').value;
+const amount = parseInt(document.getElementById('expAmount').value);
+const date = document.getElementById('expDate').value;
+
+if (desc && amount && date) {
+expenses.push({ id: Date.now(), desc, amount, date });
+localStorage.setItem('razan_expenses', JSON.stringify(expenses));
+closeExpenseModal();
+renderAdminData();
+} else {
+alert('الرجاء تعبئة كافة حقول المصروف.');
+}
+}
+
+function generateReport() {
+const from = document.getElementById('filterFrom').value;
+const to = document.getElementById('filterTo').value;
+const resDiv = document.getElementById('reportResult');
+
+if (!from || !to) {
+alert('الرجاء تحديد تاريخ البداية وتاريخ النهاية للكشف.');
+return;
+}
+
+const filteredBookings = bookings.filter(b => b.date >= from && b.date <= to);
+const filteredExpenses = expenses.filter(e => e.date >= from && e.date <= to);
+
+let rev = filteredBookings.reduce((s, b) => s + b.paid, 0);
+let exp = filteredExpenses.reduce((s, e) => s + e.amount, 0);
+let net = rev - exp;
+
+resDiv.classList.remove('hidden');
+resDiv.innerHTML = &lt;h4 class="font-bold text-amber-400 mb-2"&gt;تقرير الفترة من ${from} إلى ${to}:&lt;/h4&gt; &lt;div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-300"&gt; &lt;div&gt;إجمالي الإيرادات المقبوضة: &lt;span class="text-emerald-400 font-bold"&gt;${rev}</span></div>
+<div>إجمالي المصروفات التشغيلية: <span class="text-rose-400 font-bold">${exp}&lt;/span&gt;&lt;/div&gt; &lt;div&gt;صافي الدخل الصافي: &lt;span class="text-amber-300 font-bold"&gt;${net}</span></div>
+</div>
+<div class="mt-2 text-xs text-slate-400">عدد الحجوزات بالفترة: ${filteredBookings.length} حجز.&lt;/div&gt;;
+}
+
+// Initialize table on load
+renderAdminData();
+</script>
+</body>
+</html>
